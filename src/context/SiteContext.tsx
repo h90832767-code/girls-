@@ -133,22 +133,14 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const data = await fetchSiteSettingsData();
       if (data && Object.keys(data).length > 0) {
-        const schoolName = data.school_name || 'Girls Academy';
+        const schoolName = data.school_name || data.academy_name || 'Girls Academy';
         const parts = schoolName.split(' ');
         const first = parts[0] || 'Girls';
         const second = parts.slice(1).join(' ') || 'Academy';
 
-        // Sanitize any Urdu remnants from stored data
-        const cleanData: Record<string, string> = { ...data };
-        Object.keys(cleanData).forEach(k => {
-          if (typeof cleanData[k] === 'string' && /[\u0600-\u06FF]/.test(cleanData[k])) {
-            cleanData[k] = (defaultSettings as any)[k] || '';
-          }
-        });
-
         setSettings({
           ...defaultSettings,
-          ...cleanData,
+          ...data,
           logo_text_first: first,
           logo_text_second: second
         });

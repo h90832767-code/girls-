@@ -172,5 +172,401 @@
       "is_approved": true,
       "created_at": "2026-09-25T10:00:00Z"
     }
-  ]
+  ],
+  "classes": [
+    {
+      "id": "class-1",
+      "name": "Class 9 (Science)",
+      "course_id": "c-3",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-2",
+      "name": "Class 10 (Science)",
+      "course_id": "c-3",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-3",
+      "name": "Class 9 (Arts)",
+      "course_id": "c-4",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-4",
+      "name": "Class 10 (Arts)",
+      "course_id": "c-4",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-5",
+      "name": "Class 9 (Commerce)",
+      "course_id": "c-5",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-6",
+      "name": "Class 10 (Commerce)",
+      "course_id": "c-5",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-7",
+      "name": "FSc Pre-Medical (1st Year)",
+      "course_id": "c-6",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-8",
+      "name": "FSc Pre-Medical (2nd Year)",
+      "course_id": "c-6",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-9",
+      "name": "FSc Pre-Engineering (1st Year)",
+      "course_id": "c-7",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-10",
+      "name": "FSc Pre-Engineering (2nd Year)",
+      "course_id": "c-7",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-11",
+      "name": "FA — Faculty of Arts (1st Year)",
+      "course_id": "c-8",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-12",
+      "name": "FA — Faculty of Arts (2nd Year)",
+      "course_id": "c-8",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-13",
+      "name": "ICS — Computer Science (1st Year)",
+      "course_id": "c-9",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-14",
+      "name": "ICS — Computer Science (2nd Year)",
+      "course_id": "c-9",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-15",
+      "name": "I.Com — Commerce (1st Year)",
+      "course_id": "c-10",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-16",
+      "name": "I.Com — Commerce (2nd Year)",
+      "course_id": "c-10",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-17",
+      "name": "Class 8 (Middle)",
+      "course_id": "c-2",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-18",
+      "name": "Class 7 (Middle)",
+      "course_id": "c-2",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-19",
+      "name": "Class 6 (Middle)",
+      "course_id": "c-2",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-20",
+      "name": "Class 5 (Primary)",
+      "course_id": "c-1",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "class-21",
+      "name": "Nursery / KG",
+      "course_id": "c-1",
+      "term_id": "term-1",
+      "created_at": "2026-01-01T00:00:00Z"
+    }
+  ],
+  "courses": [
+    {
+      "id": "c-1",
+      "title": "Primary Program (Nursery – Class 5)",
+      "description": "Primary Education — Core Subjects: English, Mathematics, General Science, Social Studies, and Ethics",
+      "level": "Primary",
+      "category": "School",
+      "duration": "7 Years",
+      "schedule": "Mon-Sat, 8:00 AM – 1:00 PM",
+      "fee_info": "Rs. 2,500 – 3,000/month",
+      "instructor_name": "Primary Section Head",
+      "thumbnail_url": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
+      "is_active": true
+    },
+    {
+      "id": "c-2",
+      "title": "Middle School (Class 6 – 8)",
+      "description": "Middle School — English, Mathematics, Science, Social Studies, and Computer Science",
+      "level": "Middle",
+      "category": "School",
+      "duration": "3 Years",
+      "schedule": "Mon-Sat, 8:00 AM – 2:00 PM",
+      "fee_info": "Rs. 3,500/month",
+      "instructor_name": "Middle Section Head",
+      "thumbnail_url": "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80",
+      "is_active": true
+    },
+    {
+      "id": "c-3",
+      "title": "Matric Science (Class 9 – 10)",
+      "description": "Matric Science — Physics, Chemistry, Biology, Mathematics | BISE Board",
+      "level": "Secondary",
+      "category": "Matric",
+      "duration": "2 Years",
+      "schedule": "Mon-Sat, 8:00 AM – 2:00 PM",
+      "fee_info": "Rs. 4,500/month",
+      "instructor_name": "Science Department (BISE Specialist)",
+      "thumbnail_url": "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=800&q=80",
+      "is_active": true
+    },
+    {
+      "id": "c-4",
+      "title": "Matric Arts (Class 9 – 10)",
+      "description": "Matric Arts — English, General Science, Civics, History | BISE Board",
+      "level": "Secondary",
+      "category": "Matric",
+      "duration": "2 Years",
+      "schedule": "Mon-Sat, 8:00 AM – 2:00 PM",
+      "fee_info": "Rs. 4,000/month",
+      "instructor_name": "Arts Department",
+      "thumbnail_url": "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=800&q=80",
+      "is_active": true
+    },
+    {
+      "id": "c-5",
+      "title": "Matric Commerce (Class 9 – 10)",
+      "description": "Matric Commerce — Principles of Accounting, Economics, Commerce | BISE Board",
+      "level": "Secondary",
+      "category": "Matric",
+      "duration": "2 Years",
+      "schedule": "Mon-Sat, 8:00 AM – 2:00 PM",
+      "fee_info": "Rs. 4,000/month",
+      "instructor_name": "Commerce Department",
+      "thumbnail_url": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80",
+      "is_active": true
+    },
+    {
+      "id": "c-6",
+      "title": "FSc Pre-Medical (1st & 2nd Year)",
+      "description": "FSc Pre-Medical — Physics, Chemistry, Biology | MDCAT Preparation",
+      "level": "Higher Secondary",
+      "category": "FSc",
+      "duration": "2 Years",
+      "schedule": "Mon-Sat, 8:00 AM – 2:00 PM",
+      "fee_info": "Rs. 5,500/month",
+      "instructor_name": "FSc Science Department",
+      "thumbnail_url": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80",
+      "is_active": true
+    },
+    {
+      "id": "c-7",
+      "title": "FSc Pre-Engineering (1st & 2nd Year)",
+      "description": "FSc Pre-Engineering — Physics, Chemistry, Mathematics | ECAT Preparation",
+      "level": "Higher Secondary",
+      "category": "FSc",
+      "duration": "2 Years",
+      "schedule": "Mon-Sat, 8:00 AM – 2:00 PM",
+      "fee_info": "Rs. 5,500/month",
+      "instructor_name": "FSc Science Department",
+      "thumbnail_url": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80",
+      "is_active": true
+    },
+    {
+      "id": "c-8",
+      "title": "FA — Faculty of Arts (1st & 2nd Year)",
+      "description": "FA Arts — English, Psychology, Civics, Education, Literature",
+      "level": "Higher Secondary",
+      "category": "FA",
+      "duration": "2 Years",
+      "schedule": "Mon-Sat, 8:00 AM – 2:00 PM",
+      "fee_info": "Rs. 4,500/month",
+      "instructor_name": "Arts Department",
+      "thumbnail_url": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80",
+      "is_active": true
+    },
+    {
+      "id": "c-9",
+      "title": "ICS Computer Science (1st & 2nd Year)",
+      "description": "ICS — Computer Science, Mathematics, Physics / Statistics | Software Foundations",
+      "level": "Higher Secondary",
+      "category": "ICS",
+      "duration": "2 Years",
+      "schedule": "Mon-Sat, 8:00 AM – 2:00 PM",
+      "fee_info": "Rs. 5,500/month",
+      "instructor_name": "Computer Science Department",
+      "thumbnail_url": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80",
+      "is_active": true
+    },
+    {
+      "id": "c-10",
+      "title": "I.Com Commerce (1st & 2nd Year)",
+      "description": "I.Com — Accounting, Banking, Commercial Geography, Economics",
+      "level": "Higher Secondary",
+      "category": "I.Com",
+      "duration": "2 Years",
+      "schedule": "Mon-Sat, 8:00 AM – 2:00 PM",
+      "fee_info": "Rs. 4,500/month",
+      "instructor_name": "Commerce Department",
+      "thumbnail_url": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+      "is_active": true
+    }
+  ],
+  "subjects": [
+    {
+      "id": "subj-1",
+      "name": "Physics",
+      "course_id": "c-3"
+    },
+    {
+      "id": "subj-2",
+      "name": "Chemistry",
+      "course_id": "c-3"
+    },
+    {
+      "id": "subj-3",
+      "name": "Biology",
+      "course_id": "c-3"
+    },
+    {
+      "id": "subj-4",
+      "name": "Mathematics",
+      "course_id": "c-3"
+    },
+    {
+      "id": "subj-5",
+      "name": "Urdu Literature & Language",
+      "course_id": "c-3"
+    },
+    {
+      "id": "subj-6",
+      "name": "English Compulsory & Composition",
+      "course_id": "c-3"
+    },
+    {
+      "id": "subj-7",
+      "name": "Ethics & Values Compulsory",
+      "course_id": "c-3"
+    },
+    {
+      "id": "subj-pm1",
+      "name": "Biology (HSSC Pre-Medical)",
+      "course_id": "c-6"
+    },
+    {
+      "id": "subj-pm2",
+      "name": "Physics (HSSC Part 1 & 2)",
+      "course_id": "c-6"
+    },
+    {
+      "id": "subj-pm3",
+      "name": "Chemistry (HSSC Organic & Inorganic)",
+      "course_id": "c-6"
+    },
+    {
+      "id": "subj-ics1",
+      "name": "Computer Science & Programming (C/C++)",
+      "course_id": "c-9"
+    },
+    {
+      "id": "subj-ics2",
+      "name": "Mathematics (Calculus & Analytical Geometry)",
+      "course_id": "c-9"
+    }
+  ],
+  "site_settings": {
+    "academy_name": "Girls Academy",
+    "school_name": "Girls Academy",
+    "academy_tagline": "Quality Education — Inspiring Women Leaders",
+    "tagline": "Quality Education — Inspiring Women Leaders",
+    "academy_email": "info@girlsacademy.edu.pk",
+    "admissions_email": "info@girlsacademy.edu.pk",
+    "contact_email": "info@girlsacademy.edu.pk",
+    "academy_phone": "051-4861234",
+    "phone_number": "051-4861234",
+    "contact_phone": "051-4861234",
+    "academy_whatsapp": "0300-4861234",
+    "academy_address": "Street 5, Sector G-11/2, Islamabad, Pakistan",
+    "campus_address": "Street 5, Sector G-11/2, Islamabad, Pakistan",
+    "address": "Street 5, Sector G-11/2, Islamabad, Pakistan",
+    "academy_city": "Islamabad",
+    "city_state": "Islamabad, ICT",
+    "academy_province": "Islamabad Capital Territory",
+    "facebook_url": "https://facebook.com/girlsacademy",
+    "instagram_url": "https://instagram.com/girlsacademy",
+    "youtube_url": "https://youtube.com/girlsacademy",
+    "whatsapp_url": "https://wa.me/923004861234",
+    "hero_title": "Welcome to Girls Academy",
+    "hero_subtitle": "Premier College for Women in Islamabad — Academic Excellence and Leadership",
+    "hero_image_url": "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1600&q=80",
+    "total_students": "1250",
+    "total_teachers": "48",
+    "total_courses": "10",
+    "years_of_excellence": "18",
+    "about_story": "Empowering future women leaders through academic excellence and values-based mentorship",
+    "principal_name": "Mrs. Raheela Perveen",
+    "principal_designation": "Principal & Head of Institution (M.Ed, University of the Punjab)",
+    "principal_message": "We firmly believe that every young woman possesses limitless potential that blooms with dedicated mentorship.",
+    "principal_photo_url": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80",
+    "admission_open": "true",
+    "admissions_open": "true",
+    "admission_last_date": "31/03/2026",
+    "admission_instructions": "Online admissions for Session 2026-2027 are now open. Please upload student B-Form, previous report card, and father/guardian CNIC.",
+    "academic_year": "2026-2027",
+    "logo_text_first": "Girls",
+    "logo_text_second": "Academy"
+  },
+  "events": [],
+  "blogs": [],
+  "gallery": [],
+  "banners": [],
+  "hero_slides": [],
+  "announcements": [],
+  "popups": [],
+  "supabase_config": {
+    "url": "",
+    "anon_key": ""
+  }
 }

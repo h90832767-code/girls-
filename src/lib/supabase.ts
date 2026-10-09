@@ -1,20 +1,33 @@
-import { createClient, User, Session } from '@supabase/supabase-js';
+import { createClient, User, Session, SupabaseClient } from '@supabase/supabase-js';
 import { Course, EventItem, Profile, SiteSetting, Testimonial, UserRole } from '../types';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+export function getSupabaseCredentials() {
+  const envUrl = import.meta.env.VITE_SUPABASE_URL || '';
+  const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+  const localUrl = typeof window !== 'undefined' ? localStorage.getItem('ga_supabase_url') || '' : '';
+  const localKey = typeof window !== 'undefined' ? localStorage.getItem('ga_supabase_anon_key') || '' : '';
 
-export const isSupabaseConfigured = Boolean(
-  supabaseUrl && 
-  supabaseAnonKey && 
-  supabaseUrl.startsWith('http') && 
-  !supabaseUrl.includes('placeholder') &&
-  !supabaseUrl.includes('mock-')
-);
+  const url = (localUrl || envUrl).trim();
+  const key = (localKey || envKey).trim();
+
+  const isConfigured = Boolean(
+    url && 
+    key && 
+    url.startsWith('http') && 
+    !url.includes('placeholder') &&
+    !url.includes('mock-')
+  );
+
+  return { url, key, isConfigured };
+}
+
+const currentCreds = getSupabaseCredentials();
+
+export const isSupabaseConfigured = currentCreds.isConfigured;
 
 // Initialize Supabase client
-export const supabase = isSupabaseConfigured
-  ? createClient(supabaseUrl, supabaseAnonKey, {
+export let supabase: SupabaseClient = currentCreds.isConfigured
+  ? createClient(currentCreds.url, currentCreds.key, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
@@ -22,6 +35,40 @@ export const supabase = isSupabaseConfigured
       }
     })
   : createClient('https://mock-app.supabase.co', 'mock-anon-key');
+
+export async function testSupabaseConnection(url: string, anonKey: string): Promise<{ success: boolean; message: string }> {
+  try {
+    const cleanUrl = url.trim();
+    const cleanKey = anonKey.trim();
+    if (!cleanUrl.startsWith('http')) {
+      return { success: false, message: 'Invalid URL. It must start with https://' };
+    }
+    const testClient = createClient(cleanUrl, cleanKey);
+    // Ping profiles or public schema
+    const { error } = await testClient.from('profiles').select('id').limit(1);
+    if (error && error.message && !error.message.includes('relation "profiles" does not exist')) {
+      return { success: false, message: error.message };
+    }
+    // Update local client
+    supabase = testClient;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ga_supabase_url', cleanUrl);
+      localStorage.setItem('ga_supabase_anon_key', cleanKey);
+    }
+    // Also save to server config
+    try {
+      await fetch('/api/database/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ supabase_url: cleanUrl, supabase_anon_key: cleanKey })
+      });
+    } catch {}
+    return { success: true, message: 'Successfully connected to Supabase database!' };
+  } catch (err: any) {
+    return { success: false, message: err?.message || 'Failed to connect to Supabase.' };
+  }
+}
+
 
 // Pre-seeded Demo Profiles for all 4 roles (supports instant offline testing & demonstration)
 export const demoProfiles: Record<string, Profile> = {

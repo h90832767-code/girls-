@@ -29,7 +29,9 @@ app.use('/uploads', express.static(UPLOADS_DIR));
 
 const STORE_FILE = path.join(DATA_DIR, 'store.json');
 
-// Initial seed data
+// ============================================================================
+// INITIAL SEED DATA
+// ============================================================================
 const initialPosters = [
   {
     id: 'poster-1',
@@ -196,10 +198,237 @@ const initialTestimonials = [
   }
 ];
 
+const initialClasses = [
+  { id: 'class-1', name: 'Class 9 (Science)', course_id: 'c-3', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-2', name: 'Class 10 (Science)', course_id: 'c-3', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-3', name: 'Class 9 (Arts)', course_id: 'c-4', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-4', name: 'Class 10 (Arts)', course_id: 'c-4', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-5', name: 'Class 9 (Commerce)', course_id: 'c-5', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-6', name: 'Class 10 (Commerce)', course_id: 'c-5', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-7', name: 'FSc Pre-Medical (1st Year)', course_id: 'c-6', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-8', name: 'FSc Pre-Medical (2nd Year)', course_id: 'c-6', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-9', name: 'FSc Pre-Engineering (1st Year)', course_id: 'c-7', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-10', name: 'FSc Pre-Engineering (2nd Year)', course_id: 'c-7', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-11', name: 'FA — Faculty of Arts (1st Year)', course_id: 'c-8', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-12', name: 'FA — Faculty of Arts (2nd Year)', course_id: 'c-8', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-13', name: 'ICS — Computer Science (1st Year)', course_id: 'c-9', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-14', name: 'ICS — Computer Science (2nd Year)', course_id: 'c-9', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-15', name: 'I.Com — Commerce (1st Year)', course_id: 'c-10', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-16', name: 'I.Com — Commerce (2nd Year)', course_id: 'c-10', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-17', name: 'Class 8 (Middle)', course_id: 'c-2', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-18', name: 'Class 7 (Middle)', course_id: 'c-2', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-19', name: 'Class 6 (Middle)', course_id: 'c-2', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-20', name: 'Class 5 (Primary)', course_id: 'c-1', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+  { id: 'class-21', name: 'Nursery / KG', course_id: 'c-1', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
+];
+
+const initialCourses = [
+  {
+    id: 'c-1',
+    title: 'Primary Program (Nursery – Class 5)',
+    description: 'Primary Education — Core Subjects: English, Mathematics, General Science, Social Studies, and Ethics',
+    level: 'Primary',
+    category: 'School',
+    duration: '7 Years',
+    schedule: 'Mon-Sat, 8:00 AM – 1:00 PM',
+    fee_info: 'Rs. 2,500 – 3,000/month',
+    instructor_name: 'Primary Section Head',
+    thumbnail_url: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80',
+    is_active: true
+  },
+  {
+    id: 'c-2',
+    title: 'Middle School (Class 6 – 8)',
+    description: 'Middle School — English, Mathematics, Science, Social Studies, and Computer Science',
+    level: 'Middle',
+    category: 'School',
+    duration: '3 Years',
+    schedule: 'Mon-Sat, 8:00 AM – 2:00 PM',
+    fee_info: 'Rs. 3,500/month',
+    instructor_name: 'Middle Section Head',
+    thumbnail_url: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80',
+    is_active: true
+  },
+  {
+    id: 'c-3',
+    title: 'Matric Science (Class 9 – 10)',
+    description: 'Matric Science — Physics, Chemistry, Biology, Mathematics | BISE Board',
+    level: 'Secondary',
+    category: 'Matric',
+    duration: '2 Years',
+    schedule: 'Mon-Sat, 8:00 AM – 2:00 PM',
+    fee_info: 'Rs. 4,500/month',
+    instructor_name: 'Science Department (BISE Specialist)',
+    thumbnail_url: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=800&q=80',
+    is_active: true
+  },
+  {
+    id: 'c-4',
+    title: 'Matric Arts (Class 9 – 10)',
+    description: 'Matric Arts — English, General Science, Civics, History | BISE Board',
+    level: 'Secondary',
+    category: 'Matric',
+    duration: '2 Years',
+    schedule: 'Mon-Sat, 8:00 AM – 2:00 PM',
+    fee_info: 'Rs. 4,000/month',
+    instructor_name: 'Arts Department',
+    thumbnail_url: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=800&q=80',
+    is_active: true
+  },
+  {
+    id: 'c-5',
+    title: 'Matric Commerce (Class 9 – 10)',
+    description: 'Matric Commerce — Principles of Accounting, Economics, Commerce | BISE Board',
+    level: 'Secondary',
+    category: 'Matric',
+    duration: '2 Years',
+    schedule: 'Mon-Sat, 8:00 AM – 2:00 PM',
+    fee_info: 'Rs. 4,000/month',
+    instructor_name: 'Commerce Department',
+    thumbnail_url: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80',
+    is_active: true
+  },
+  {
+    id: 'c-6',
+    title: 'FSc Pre-Medical (1st & 2nd Year)',
+    description: 'FSc Pre-Medical — Physics, Chemistry, Biology | MDCAT Preparation',
+    level: 'Higher Secondary',
+    category: 'FSc',
+    duration: '2 Years',
+    schedule: 'Mon-Sat, 8:00 AM – 2:00 PM',
+    fee_info: 'Rs. 5,500/month',
+    instructor_name: 'FSc Science Department',
+    thumbnail_url: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80',
+    is_active: true
+  },
+  {
+    id: 'c-7',
+    title: 'FSc Pre-Engineering (1st & 2nd Year)',
+    description: 'FSc Pre-Engineering — Physics, Chemistry, Mathematics | ECAT Preparation',
+    level: 'Higher Secondary',
+    category: 'FSc',
+    duration: '2 Years',
+    schedule: 'Mon-Sat, 8:00 AM – 2:00 PM',
+    fee_info: 'Rs. 5,500/month',
+    instructor_name: 'FSc Science Department',
+    thumbnail_url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
+    is_active: true
+  },
+  {
+    id: 'c-8',
+    title: 'FA — Faculty of Arts (1st & 2nd Year)',
+    description: 'FA Arts — English, Psychology, Civics, Education, Literature',
+    level: 'Higher Secondary',
+    category: 'FA',
+    duration: '2 Years',
+    schedule: 'Mon-Sat, 8:00 AM – 2:00 PM',
+    fee_info: 'Rs. 4,500/month',
+    instructor_name: 'Arts Department',
+    thumbnail_url: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80',
+    is_active: true
+  },
+  {
+    id: 'c-9',
+    title: 'ICS Computer Science (1st & 2nd Year)',
+    description: 'ICS — Computer Science, Mathematics, Physics / Statistics | Software Foundations',
+    level: 'Higher Secondary',
+    category: 'ICS',
+    duration: '2 Years',
+    schedule: 'Mon-Sat, 8:00 AM – 2:00 PM',
+    fee_info: 'Rs. 5,500/month',
+    instructor_name: 'Computer Science Department',
+    thumbnail_url: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80',
+    is_active: true
+  },
+  {
+    id: 'c-10',
+    title: 'I.Com Commerce (1st & 2nd Year)',
+    description: 'I.Com — Accounting, Banking, Commercial Geography, Economics',
+    level: 'Higher Secondary',
+    category: 'I.Com',
+    duration: '2 Years',
+    schedule: 'Mon-Sat, 8:00 AM – 2:00 PM',
+    fee_info: 'Rs. 4,500/month',
+    instructor_name: 'Commerce Department',
+    thumbnail_url: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80',
+    is_active: true
+  }
+];
+
+const initialSubjects = [
+  { id: 'subj-1', name: 'Physics', course_id: 'c-3' },
+  { id: 'subj-2', name: 'Chemistry', course_id: 'c-3' },
+  { id: 'subj-3', name: 'Biology', course_id: 'c-3' },
+  { id: 'subj-4', name: 'Mathematics', course_id: 'c-3' },
+  { id: 'subj-5', name: 'Urdu Literature & Language', course_id: 'c-3' },
+  { id: 'subj-6', name: 'English Compulsory & Composition', course_id: 'c-3' },
+  { id: 'subj-7', name: 'Ethics & Values Compulsory', course_id: 'c-3' },
+  { id: 'subj-pm1', name: 'Biology (HSSC Pre-Medical)', course_id: 'c-6' },
+  { id: 'subj-pm2', name: 'Physics (HSSC Part 1 & 2)', course_id: 'c-6' },
+  { id: 'subj-pm3', name: 'Chemistry (HSSC Organic & Inorganic)', course_id: 'c-6' },
+  { id: 'subj-ics1', name: 'Computer Science & Programming (C/C++)', course_id: 'c-9' },
+  { id: 'subj-ics2', name: 'Mathematics (Calculus & Analytical Geometry)', course_id: 'c-9' },
+];
+
+const initialSiteSettings: Record<string, string> = {
+  academy_name: 'Girls Academy',
+  school_name: 'Girls Academy',
+  academy_tagline: 'Quality Education — Inspiring Women Leaders',
+  tagline: 'Quality Education — Inspiring Women Leaders',
+  academy_email: 'info@girlsacademy.edu.pk',
+  admissions_email: 'info@girlsacademy.edu.pk',
+  contact_email: 'info@girlsacademy.edu.pk',
+  academy_phone: '051-4861234',
+  phone_number: '051-4861234',
+  contact_phone: '051-4861234',
+  academy_whatsapp: '0300-4861234',
+  academy_address: 'Street 5, Sector G-11/2, Islamabad, Pakistan',
+  campus_address: 'Street 5, Sector G-11/2, Islamabad, Pakistan',
+  address: 'Street 5, Sector G-11/2, Islamabad, Pakistan',
+  academy_city: 'Islamabad',
+  city_state: 'Islamabad, ICT',
+  academy_province: 'Islamabad Capital Territory',
+  facebook_url: 'https://facebook.com/girlsacademy',
+  instagram_url: 'https://instagram.com/girlsacademy',
+  youtube_url: 'https://youtube.com/girlsacademy',
+  whatsapp_url: 'https://wa.me/923004861234',
+  hero_title: 'Welcome to Girls Academy',
+  hero_subtitle: 'Premier College for Women in Islamabad — Academic Excellence and Leadership',
+  hero_image_url: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1600&q=80',
+  total_students: '1250',
+  total_teachers: '48',
+  total_courses: '10',
+  years_of_excellence: '18',
+  about_story: 'Empowering future women leaders through academic excellence and values-based mentorship',
+  principal_name: 'Mrs. Raheela Perveen',
+  principal_designation: 'Principal & Head of Institution (M.Ed, University of the Punjab)',
+  principal_message: 'We firmly believe that every young woman possesses limitless potential that blooms with dedicated mentorship.',
+  principal_photo_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80',
+  admission_open: 'true',
+  admissions_open: 'true',
+  admission_last_date: '31/03/2026',
+  admission_instructions: 'Online admissions for Session 2026-2027 are now open. Please upload student B-Form, previous report card, and father/guardian CNIC.',
+  academic_year: '2026-2027',
+  logo_text_first: 'Girls',
+  logo_text_second: 'Academy'
+};
+
 interface AppStore {
   posters: any[];
   admissions: any[];
   testimonials: any[];
+  classes: any[];
+  courses: any[];
+  subjects: any[];
+  site_settings: Record<string, string>;
+  events?: any[];
+  blogs?: any[];
+  gallery?: any[];
+  banners?: any[];
+  hero_slides?: any[];
+  announcements?: any[];
+  popups?: any[];
+  supabase_config?: { url: string; anon_key: string };
 }
 
 function loadStore(): AppStore {
@@ -208,9 +437,24 @@ function loadStore(): AppStore {
       const raw = fs.readFileSync(STORE_FILE, 'utf-8');
       const parsed = JSON.parse(raw);
       return {
-        posters: Array.isArray(parsed.posters) ? parsed.posters : initialPosters,
+        posters: Array.isArray(parsed.posters) && parsed.posters.length > 0 ? parsed.posters : initialPosters,
         admissions: Array.isArray(parsed.admissions) ? parsed.admissions : initialAdmissions,
-        testimonials: Array.isArray(parsed.testimonials) ? parsed.testimonials : initialTestimonials,
+        testimonials: Array.isArray(parsed.testimonials) && parsed.testimonials.length > 0 ? parsed.testimonials : initialTestimonials,
+        classes: Array.isArray(parsed.classes) && parsed.classes.length > 0 ? parsed.classes : initialClasses,
+        courses: Array.isArray(parsed.courses) && parsed.courses.length > 0 ? parsed.courses : initialCourses,
+        subjects: Array.isArray(parsed.subjects) && parsed.subjects.length > 0 ? parsed.subjects : initialSubjects,
+        site_settings: parsed.site_settings && typeof parsed.site_settings === 'object' ? parsed.site_settings : initialSiteSettings,
+        events: Array.isArray(parsed.events) ? parsed.events : [],
+        blogs: Array.isArray(parsed.blogs) ? parsed.blogs : [],
+        gallery: Array.isArray(parsed.gallery) ? parsed.gallery : [],
+        banners: Array.isArray(parsed.banners) ? parsed.banners : [],
+        hero_slides: Array.isArray(parsed.hero_slides) ? parsed.hero_slides : [],
+        announcements: Array.isArray(parsed.announcements) ? parsed.announcements : [],
+        popups: Array.isArray(parsed.popups) ? parsed.popups : [],
+        supabase_config: parsed.supabase_config || {
+          url: process.env.VITE_SUPABASE_URL || '',
+          anon_key: process.env.VITE_SUPABASE_ANON_KEY || ''
+        }
       };
     }
   } catch (err) {
@@ -220,6 +464,21 @@ function loadStore(): AppStore {
     posters: initialPosters,
     admissions: initialAdmissions,
     testimonials: initialTestimonials,
+    classes: initialClasses,
+    courses: initialCourses,
+    subjects: initialSubjects,
+    site_settings: initialSiteSettings,
+    events: [],
+    blogs: [],
+    gallery: [],
+    banners: [],
+    hero_slides: [],
+    announcements: [],
+    popups: [],
+    supabase_config: {
+      url: process.env.VITE_SUPABASE_URL || '',
+      anon_key: process.env.VITE_SUPABASE_ANON_KEY || ''
+    }
   };
   saveStore(defaultStore);
   return defaultStore;
@@ -248,13 +507,14 @@ app.post('/api/upload', (req, res) => {
       return res.status(400).json({ error: 'Image data URL is required' });
     }
 
+    // If it's already an HTTP URL or local uploads path, return it directly
+    if (rawData.startsWith('http://') || rawData.startsWith('https://') || rawData.startsWith('/uploads/')) {
+      return res.json({ url: rawData, success: true });
+    }
+
     // Match data URI scheme: data:image/jpeg;base64,....
-    const matches = rawData.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    const matches = rawData.match(/^data:([A-Za-z0-9\-+\/]+);base64,(.+)$/);
     if (!matches || matches.length !== 3) {
-      // If it's already a public URL, return it
-      if (rawData.startsWith('http://') || rawData.startsWith('https://') || rawData.startsWith('/uploads/')) {
-        return res.json({ url: rawData });
-      }
       return res.status(400).json({ error: 'Invalid base64 data format' });
     }
 
@@ -266,6 +526,7 @@ app.post('/api/upload', (req, res) => {
     if (mimeType.includes('png')) ext = 'png';
     else if (mimeType.includes('webp')) ext = 'webp';
     else if (mimeType.includes('pdf')) ext = 'pdf';
+    else if (mimeType.includes('svg')) ext = 'svg';
 
     const safeName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
     const filePath = path.join(UPLOADS_DIR, safeName);
@@ -325,6 +586,199 @@ app.put('/api/posters/:id', (req, res) => {
 app.delete('/api/posters/:id', (req, res) => {
   const { id } = req.params;
   dbStore.posters = dbStore.posters.filter(p => p.id !== id);
+  saveStore(dbStore);
+  res.json({ success: true });
+});
+
+// ============================================================================
+// TESTIMONIALS / REVIEWS API
+// ============================================================================
+app.get('/api/testimonials', (req, res) => {
+  const { approvedOnly } = req.query;
+  let list = dbStore.testimonials;
+  if (approvedOnly === 'true') {
+    list = list.filter(t => t.is_approved !== false && t.is_active !== false);
+  }
+  res.json(list);
+});
+
+app.post('/api/testimonials', (req, res) => {
+  try {
+    const item = req.body;
+    const authorName = item.student_name || item.author || 'Anonymous Scholar';
+    const newTestimonial = {
+      ...item,
+      id: item.id || `test-${Date.now()}`,
+      student_name: authorName,
+      author: authorName,
+      student_class: item.student_class || item.role || 'Visitor / Scholar',
+      role: item.student_class || item.role || 'Visitor / Scholar',
+      quote: item.quote || item.feedback || '',
+      avatar_url: item.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      rating: item.rating || 5,
+      is_active: item.is_active !== undefined ? item.is_active : true,
+      is_approved: item.is_approved !== undefined ? item.is_approved : true, // Visible immediately
+      created_at: item.created_at || new Date().toISOString()
+    };
+
+    dbStore.testimonials.unshift(newTestimonial);
+    saveStore(dbStore);
+    res.status(201).json(newTestimonial);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/testimonials/:id', (req, res) => {
+  const { id } = req.params;
+  const updates = req.body;
+  const idx = dbStore.testimonials.findIndex(t => t.id === id);
+  if (idx === -1) {
+    return res.status(404).json({ error: 'Testimonial not found' });
+  }
+  dbStore.testimonials[idx] = { ...dbStore.testimonials[idx], ...updates, updated_at: new Date().toISOString() };
+  saveStore(dbStore);
+  res.json(dbStore.testimonials[idx]);
+});
+
+app.delete('/api/testimonials/:id', (req, res) => {
+  const { id } = req.params;
+  dbStore.testimonials = dbStore.testimonials.filter(t => t.id !== id);
+  saveStore(dbStore);
+  res.json({ success: true });
+});
+
+// ============================================================================
+// CLASSES API
+// ============================================================================
+app.get('/api/classes', (_req, res) => {
+  res.json(dbStore.classes);
+});
+
+app.post('/api/classes', (req, res) => {
+  try {
+    const data = req.body;
+    const newClass = {
+      ...data,
+      id: data.id || `class-${Date.now()}`,
+      created_at: data.created_at || new Date().toISOString(),
+    };
+    dbStore.classes.push(newClass);
+    saveStore(dbStore);
+    res.status(201).json(newClass);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/classes/:id', (req, res) => {
+  const { id } = req.params;
+  const updates = req.body;
+  const idx = dbStore.classes.findIndex(c => c.id === id);
+  if (idx === -1) {
+    return res.status(404).json({ error: 'Class not found' });
+  }
+  dbStore.classes[idx] = { ...dbStore.classes[idx], ...updates };
+  saveStore(dbStore);
+  res.json(dbStore.classes[idx]);
+});
+
+app.delete('/api/classes/:id', (req, res) => {
+  const { id } = req.params;
+  dbStore.classes = dbStore.classes.filter(c => c.id !== id);
+  saveStore(dbStore);
+  res.json({ success: true });
+});
+
+// ============================================================================
+// COURSES API
+// ============================================================================
+app.get('/api/courses', (req, res) => {
+  const { activeOnly } = req.query;
+  let list = dbStore.courses;
+  if (activeOnly === 'true') {
+    list = list.filter(c => c.is_active);
+  }
+  res.json(list);
+});
+
+app.post('/api/courses', (req, res) => {
+  try {
+    const data = req.body;
+    const newCourse = {
+      ...data,
+      id: data.id || `course-${Date.now()}`,
+      is_active: data.is_active !== undefined ? data.is_active : true,
+      created_at: new Date().toISOString(),
+    };
+    dbStore.courses.push(newCourse);
+    saveStore(dbStore);
+    res.status(201).json(newCourse);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/courses/:id', (req, res) => {
+  const { id } = req.params;
+  const updates = req.body;
+  const idx = dbStore.courses.findIndex(c => c.id === id);
+  if (idx === -1) {
+    return res.status(404).json({ error: 'Course not found' });
+  }
+  dbStore.courses[idx] = { ...dbStore.courses[idx], ...updates };
+  saveStore(dbStore);
+  res.json(dbStore.courses[idx]);
+});
+
+app.delete('/api/courses/:id', (req, res) => {
+  const { id } = req.params;
+  dbStore.courses = dbStore.courses.filter(c => c.id !== id);
+  saveStore(dbStore);
+  res.json({ success: true });
+});
+
+// ============================================================================
+// SUBJECTS API
+// ============================================================================
+app.get('/api/subjects', (req, res) => {
+  const { course_id } = req.query;
+  let list = dbStore.subjects;
+  if (course_id) {
+    list = list.filter(s => s.course_id === course_id);
+  }
+  res.json(list);
+});
+
+app.post('/api/subjects', (req, res) => {
+  try {
+    const data = req.body;
+    const newSubj = {
+      ...data,
+      id: data.id || `subj-${Date.now()}`,
+      created_at: new Date().toISOString(),
+    };
+    dbStore.subjects.push(newSubj);
+    saveStore(dbStore);
+    res.status(201).json(newSubj);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/subjects/:id', (req, res) => {
+  const { id } = req.params;
+  const updates = req.body;
+  const idx = dbStore.subjects.findIndex(s => s.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Subject not found' });
+  dbStore.subjects[idx] = { ...dbStore.subjects[idx], ...updates };
+  saveStore(dbStore);
+  res.json(dbStore.subjects[idx]);
+});
+
+app.delete('/api/subjects/:id', (req, res) => {
+  const { id } = req.params;
+  dbStore.subjects = dbStore.subjects.filter(s => s.id !== id);
   saveStore(dbStore);
   res.json({ success: true });
 });
@@ -396,60 +850,63 @@ app.delete('/api/admissions/:id', (req, res) => {
 });
 
 // ============================================================================
-// TESTIMONIALS / REVIEWS API
+// SITE SETTINGS API
 // ============================================================================
-app.get('/api/testimonials', (req, res) => {
-  const { approvedOnly } = req.query;
-  let list = dbStore.testimonials;
-  if (approvedOnly === 'true') {
-    list = list.filter(t => t.is_approved !== false && t.is_active !== false);
-  }
-  res.json(list);
+app.get('/api/site-settings', (_req, res) => {
+  res.json(dbStore.site_settings || initialSiteSettings);
 });
 
-app.post('/api/testimonials', (req, res) => {
+app.put('/api/site-settings', (req, res) => {
   try {
-    const item = req.body;
-    const newTestimonial = {
-      ...item,
-      id: item.id || `test-${Date.now()}`,
-      student_name: item.student_name || item.author || 'Anonymous Scholar',
-      author: item.student_name || item.author || 'Anonymous Scholar',
-      student_class: item.student_class || item.role || 'Visitor / Scholar',
-      role: item.student_class || item.role || 'Visitor / Scholar',
-      quote: item.quote || item.feedback || '',
-      avatar_url: item.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-      rating: item.rating || 5,
-      is_active: true,
-      is_approved: true, // Visible on site immediately
-      created_at: new Date().toISOString()
-    };
-
-    dbStore.testimonials.unshift(newTestimonial);
+    const updates = req.body;
+    dbStore.site_settings = { ...(dbStore.site_settings || initialSiteSettings), ...updates };
     saveStore(dbStore);
-    res.status(201).json(newTestimonial);
+    res.json(dbStore.site_settings);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.put('/api/testimonials/:id', (req, res) => {
-  const { id } = req.params;
-  const updates = req.body;
-  const idx = dbStore.testimonials.findIndex(t => t.id === id);
-  if (idx === -1) {
-    return res.status(404).json({ error: 'Testimonial not found' });
-  }
-  dbStore.testimonials[idx] = { ...dbStore.testimonials[idx], ...updates };
-  saveStore(dbStore);
-  res.json(dbStore.testimonials[idx]);
+// ============================================================================
+// DATABASE & SYNC STATUS & CONFIG API
+// ============================================================================
+app.get('/api/database/status', (_req, res) => {
+  res.json({
+    status: 'connected',
+    engine: 'full-stack-live-sync',
+    storage_file: STORE_FILE,
+    supabase_configured: Boolean(dbStore.supabase_config?.url && dbStore.supabase_config?.anon_key),
+    counts: {
+      posters: dbStore.posters.length,
+      testimonials: dbStore.testimonials.length,
+      classes: dbStore.classes.length,
+      courses: dbStore.courses.length,
+      subjects: dbStore.subjects.length,
+      admissions: dbStore.admissions.length,
+    },
+    timestamp: new Date().toISOString(),
+  });
 });
 
-app.delete('/api/testimonials/:id', (req, res) => {
-  const { id } = req.params;
-  dbStore.testimonials = dbStore.testimonials.filter(t => t.id !== id);
-  saveStore(dbStore);
-  res.json({ success: true });
+app.get('/api/database/config', (_req, res) => {
+  res.json({
+    supabase_url: dbStore.supabase_config?.url || process.env.VITE_SUPABASE_URL || '',
+    has_key: Boolean(dbStore.supabase_config?.anon_key || process.env.VITE_SUPABASE_ANON_KEY),
+  });
+});
+
+app.post('/api/database/config', (req, res) => {
+  try {
+    const { supabase_url, supabase_anon_key } = req.body;
+    dbStore.supabase_config = {
+      url: (supabase_url || '').trim(),
+      anon_key: (supabase_anon_key || '').trim(),
+    };
+    saveStore(dbStore);
+    res.json({ success: true, message: 'Database configuration saved successfully' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ============================================================================

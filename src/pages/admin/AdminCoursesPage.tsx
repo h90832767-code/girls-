@@ -124,14 +124,14 @@ export const AdminCoursesPage: React.FC = () => {
       await loadCourses();
       setTimeout(() => setToastMessage(null), 4000);
     } catch (err: any) {
-      alert('Error saving course: ' + err.message);
+      setToastMessage('Error saving course: ' + (err.message || 'Unknown error'));
+      setTimeout(() => setToastMessage(null), 4000);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (c: Course) => {
-    if (!window.confirm(`Are you sure you want to delete course "${c.title}"?`)) return;
     await deleteCourse(c.id);
     setToastMessage(`Course "${c.title}" removed.`);
     await loadCourses();

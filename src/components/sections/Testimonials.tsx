@@ -113,7 +113,7 @@ export const Testimonials: React.FC = () => {
             className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold text-xs sm:text-sm shadow-xl shadow-purple-950/40 hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0 border border-white/10"
           >
             <MessageSquarePlus className="w-4 h-4" />
-            <span>Write a Review / اپنا ریویو دیں</span>
+            <span>Write a Review / Share Feedback</span>
           </button>
         </div>
 
@@ -210,14 +210,14 @@ export const Testimonials: React.FC = () => {
                 </div>
                 <h4 className="text-xl font-bold text-white">Thank You for Your Review!</h4>
                 <p className="text-sm text-slate-300">
-                  آپ کا ریویو ویب سائٹ پر کامیابی سے شامل کر دیا گیا ہے۔
+                  Your review has been successfully submitted and added to the official campus portal.
                 </p>
               </div>
             ) : (
               <form onSubmit={handleReviewSubmit} className="mt-5 space-y-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    Your Full Name / آپ کا نام *
+                    Your Full Name *
                   </label>
                   <input
                     type="text"
@@ -232,7 +232,7 @@ export const Testimonials: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                      Your Role / تعلق *
+                      Your Affiliation / Role *
                     </label>
                     <select
                       value={role}
@@ -242,7 +242,7 @@ export const Testimonials: React.FC = () => {
                       <option value="Student (Class 10)">Student (Class 10)</option>
                       <option value="Student (FSc Pre-Medical)">Student (FSc Pre-Medical)</option>
                       <option value="Student (ICS Computer)">Student (ICS Computer Science)</option>
-                      <option value="Proud Parent">Proud Parent / ولی</option>
+                      <option value="Proud Parent">Proud Parent</option>
                       <option value="Academy Alumna">Academy Alumna (Graduate)</option>
                       <option value="Campus Visitor">Campus Visitor</option>
                     </select>
@@ -250,7 +250,7 @@ export const Testimonials: React.FC = () => {
 
                   <div>
                     <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                      Rating / درجہ بندی *
+                      Rating *
                     </label>
                     <div className="flex items-center gap-1.5 py-2 px-3 bg-[#121122] border border-[#2d2947] rounded-xl">
                       {[1, 2, 3, 4, 5].map((star) => (
@@ -276,7 +276,7 @@ export const Testimonials: React.FC = () => {
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    Your Review / تاثرات *
+                    Your Feedback & Review *
                   </label>
                   <textarea
                     required

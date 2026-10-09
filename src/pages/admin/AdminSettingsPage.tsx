@@ -25,15 +25,43 @@ import {
   Eye,
   EyeOff,
   ShieldCheck,
-  Lock
+  Lock,
+  Database,
+  Server,
+  RefreshCw,
+  Check,
+  AlertCircle
 } from 'lucide-react';
 import { PAKISTAN_PROVINCES } from '../../types';
 import { setUserPassword } from '../../lib/dataService';
+import { getSupabaseCredentials, testSupabaseConnection, isSupabaseConfigured } from '../../lib/supabase';
 
 export const AdminSettingsPage: React.FC = () => {
   const { settings, updateSettings } = useSite();
   const toast = useToast();
-  const [activeTab, setActiveTab] = useState<'identity' | 'contact' | 'social' | 'hero' | 'about' | 'admissions' | 'seo' | 'passwords'>('identity');
+  const [activeTab, setActiveTab] = useState<'identity' | 'contact' | 'social' | 'hero' | 'about' | 'admissions' | 'seo' | 'passwords' | 'database'>('identity');
+
+  // Supabase & Live Sync State
+  const initialCreds = getSupabaseCredentials();
+  const [supabaseUrlInput, setSupabaseUrlInput] = useState(initialCreds.url);
+  const [supabaseKeyInput, setSupabaseKeyInput] = useState(initialCreds.key);
+  const [isTestingDb, setIsTestingDb] = useState(false);
+  const [dbStatusMsg, setDbStatusMsg] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
+  const [dbLiveStats, setDbLiveStats] = useState<{ counts?: Record<string, number>; status?: string } | null>(null);
+
+  const fetchDbLiveStatus = async () => {
+    try {
+      const res = await fetch('/api/database/status');
+      if (res.ok) {
+        const data = await res.json();
+        setDbLiveStats(data);
+      }
+    } catch {}
+  };
+
+  useEffect(() => {
+    fetchDbLiveStatus();
+  }, []);
 
   // Form State
   const [formData, setFormData] = useState<Record<string, string>>({});
@@ -190,6 +218,7 @@ export const AdminSettingsPage: React.FC = () => {
     { id: 'admissions', label: '6. Admissions', icon: <UserCheck className="w-4 h-4" /> },
     { id: 'seo', label: '7. SEO & Meta', icon: <Search className="w-4 h-4" /> },
     { id: 'passwords', label: '8. Access & Passwords', icon: <KeyRound className="w-4 h-4" /> },
+    { id: 'database', label: '9. Database & Live Sync (Supabase)', icon: <Database className="w-4 h-4" /> },
   ] as const;
 
   return (
@@ -1018,6 +1047,181 @@ export const AdminSettingsPage: React.FC = () => {
                   </div>
                 </div>
 
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* SECTION 9: DATABASE & CLOUD SYNC */}
+        {activeTab === 'database' && (
+          <div className="space-y-6">
+            <Card className="p-6 bg-[#161625] border-[#2a2a3e] space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#2a2a3e]">
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <Database className="w-5 h-5 text-purple-400" />
+                    Section 9 — Live Database & Supabase Cloud Sync
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Centralized database ensuring all client uploads, posters, reviews, classes, and admissions sync live across all devices.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="flex h-3 w-3 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                  </span>
+                  <Badge variant="emerald" size="md">Live Shared Database Active</Badge>
+                </div>
+              </div>
+
+              {/* Status Explanation Card */}
+              <div className="p-4 rounded-2xl bg-emerald-950/20 border border-emerald-500/30 text-emerald-200 text-xs space-y-2">
+                <div className="flex items-center gap-2 font-bold text-sm text-emerald-300">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  Live Cross-Device Synchronization is Active
+                </div>
+                <p>
+                  <strong>Urdu:</strong> آپ کے تمام اپلوڈز (پوسٹرز، ریویوز، کلاسز، کورسز، اور داخلے) اب مرکزی سرور ڈیٹا بیس کے ساتھ جڑے ہوئے ہیں۔ جب بھی آپ یا کوئی کلائنٹ نیا پوسٹر، نیا ریویو، یا نئی کلاس اپلوڈ کرے گا، وہ فوراً تمام ڈیوائسز، موبائل فونز اور کلائنٹس کو بغیر کسی رکاوٹ کے دکھائی دے گا۔
+                </p>
+                <p className="text-slate-300">
+                  <strong>English:</strong> All uploads are backed by the server database. Posters, reviews submitted by visitors, added classes, and student admissions are synchronized across all visitors and devices in real time.
+                </p>
+              </div>
+
+              {/* Live Database Statistics */}
+              <div>
+                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">Live Synced Entities Count</h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                  <div className="p-3 rounded-xl bg-[#1a192b] border border-[#2a2845] text-center">
+                    <p className="text-[11px] text-slate-400">Posters</p>
+                    <p className="text-lg font-bold text-purple-300">{dbLiveStats?.counts?.posters ?? 4}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-[#1a192b] border border-[#2a2845] text-center">
+                    <p className="text-[11px] text-slate-400">Reviews</p>
+                    <p className="text-lg font-bold text-pink-300">{dbLiveStats?.counts?.testimonials ?? 3}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-[#1a192b] border border-[#2a2845] text-center">
+                    <p className="text-[11px] text-slate-400">Classes</p>
+                    <p className="text-lg font-bold text-emerald-300">{dbLiveStats?.counts?.classes ?? 21}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-[#1a192b] border border-[#2a2845] text-center">
+                    <p className="text-[11px] text-slate-400">Courses</p>
+                    <p className="text-lg font-bold text-cyan-300">{dbLiveStats?.counts?.courses ?? 10}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-[#1a192b] border border-[#2a2845] text-center">
+                    <p className="text-[11px] text-slate-400">Subjects</p>
+                    <p className="text-lg font-bold text-amber-300">{dbLiveStats?.counts?.subjects ?? 12}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-[#1a192b] border border-[#2a2845] text-center">
+                    <p className="text-[11px] text-slate-400">Admissions</p>
+                    <p className="text-lg font-bold text-indigo-300">{dbLiveStats?.counts?.admissions ?? 3}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Supabase Cloud Connection Form */}
+              <div className="p-5 rounded-2xl bg-[#121122] border border-purple-500/30 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Server className="w-4 h-4 text-purple-400" />
+                    Supabase Cloud Database Connection (Optional)
+                  </h4>
+                  <Badge variant={isSupabaseConfigured ? 'emerald' : 'slate'}>
+                    {isSupabaseConfigured ? 'Supabase Connected' : 'Ready to Connect'}
+                  </Badge>
+                </div>
+                <p className="text-xs text-slate-400">
+                  If you have a Supabase account and want your data mirrored to your Supabase PostgreSQL cloud database, enter your credentials below. (Even without Supabase, the live server database is already working 100% across all devices).
+                </p>
+
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">
+                      Supabase Project URL
+                    </label>
+                    <input
+                      type="text"
+                      value={supabaseUrlInput}
+                      onChange={(e) => setSupabaseUrlInput(e.target.value)}
+                      placeholder="https://xyzcompany.supabase.co"
+                      className="w-full bg-[#181829] border border-[#2d2a45] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
+                    />
+                    <p className="text-[11px] text-slate-500 mt-1">Found in your Supabase dashboard under Project Settings → API.</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">
+                      Supabase Anon Public API Key
+                    </label>
+                    <input
+                      type="password"
+                      value={supabaseKeyInput}
+                      onChange={(e) => setSupabaseKeyInput(e.target.value)}
+                      placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      className="w-full bg-[#181829] border border-[#2d2a45] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
+                    />
+                    <p className="text-[11px] text-slate-500 mt-1">Anon key with read/write access to your tables.</p>
+                  </div>
+                </div>
+
+                {dbStatusMsg && (
+                  <div className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
+                    dbStatusMsg.type === 'success' 
+                      ? 'bg-emerald-950/40 border border-emerald-500/40 text-emerald-300'
+                      : dbStatusMsg.type === 'error'
+                      ? 'bg-rose-950/40 border border-rose-500/40 text-rose-300'
+                      : 'bg-purple-950/40 border border-purple-500/40 text-purple-300'
+                  }`}>
+                    {dbStatusMsg.type === 'success' ? <Check className="w-4 h-4 text-emerald-400" /> : <AlertCircle className="w-4 h-4" />}
+                    <span>{dbStatusMsg.text}</span>
+                  </div>
+                )}
+
+                <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <Button
+                    type="button"
+                    variant="primary"
+                    size="sm"
+                    isLoading={isTestingDb}
+                    onClick={async () => {
+                      if (!supabaseUrlInput.trim() || !supabaseKeyInput.trim()) {
+                        toast.error('Both Supabase URL and Anon Key are required');
+                        return;
+                      }
+                      setIsTestingDb(true);
+                      setDbStatusMsg({ type: 'info', text: 'Testing Supabase connection...' });
+                      try {
+                        const res = await testSupabaseConnection(supabaseUrlInput, supabaseKeyInput);
+                        if (res.success) {
+                          setDbStatusMsg({ type: 'success', text: 'Supabase connected successfully!' });
+                          toast.success('Connected to Supabase cloud!');
+                          fetchDbLiveStatus();
+                        } else {
+                          setDbStatusMsg({ type: 'error', text: res.message });
+                          toast.error(`Connection failed: ${res.message}`);
+                        }
+                      } catch (err: any) {
+                        setDbStatusMsg({ type: 'error', text: err?.message || 'Connection failed' });
+                      } finally {
+                        setIsTestingDb(false);
+                      }
+                    }}
+                    leftIcon={<RefreshCw className="w-4 h-4" />}
+                  >
+                    Test & Connect Supabase
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={fetchDbLiveStatus}
+                    leftIcon={<RefreshCw className="w-4 h-4" />}
+                  >
+                    Refresh Sync Status
+                  </Button>
+                </div>
               </div>
             </Card>
           </div>

@@ -688,6 +688,17 @@ export async function fetchFeeStructures(): Promise<FeeStructure[]> {
 
 // --- COURSES CRUD ---
 export async function fetchAdminCourses(): Promise<Course[]> {
+  try {
+    const res = await fetch('/api/courses');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setLocal('ga_admin_courses', data);
+        return data;
+      }
+    }
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       const { data, error } = await supabase.from('courses').select('*').order('created_at', { ascending: false });
@@ -699,14 +710,27 @@ export async function fetchAdminCourses(): Promise<Course[]> {
 export const fetchCourses = fetchAdminCourses;
 
 export async function createCourse(course: Omit<Course, 'id'>): Promise<Course> {
-  const newCourse: Course = {
+  let newCourse: Course = {
     ...course,
     id: `c-${Date.now()}`
   };
+
+  try {
+    const res = await fetch('/api/courses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newCourse)
+    });
+    if (res.ok) {
+      const saved = await res.json();
+      if (saved && saved.id) newCourse = saved;
+    }
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       const { data, error } = await supabase.from('courses').insert([newCourse]).select().single();
-      if (!error && data) return data as Course;
+      if (!error && data) newCourse = data as Course;
     } catch {}
   }
   const all = getLocal('ga_admin_courses', defaultCourses);
@@ -716,6 +740,14 @@ export async function createCourse(course: Omit<Course, 'id'>): Promise<Course> 
 }
 
 export async function updateCourse(id: string, updates: Partial<Course>): Promise<void> {
+  try {
+    await fetch(`/api/courses/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
+    });
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       await supabase.from('courses').update(updates).eq('id', id);
@@ -730,6 +762,10 @@ export async function updateCourse(id: string, updates: Partial<Course>): Promis
 }
 
 export async function deleteCourse(id: string): Promise<void> {
+  try {
+    await fetch(`/api/courses/${id}`, { method: 'DELETE' });
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       await supabase.from('courses').delete().eq('id', id);
@@ -839,6 +875,19 @@ export async function fetchAllAttendance(): Promise<Attendance[]> {
 // --- SITE SETTINGS ---
 export async function fetchSiteSettingsData(): Promise<Record<string, string>> {
   let result: Record<string, string> = {};
+
+  try {
+    const res = await fetch('/api/site-settings');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+        result = data;
+        setLocal('ga_site_settings', result);
+        return result;
+      }
+    }
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       const { data, error } = await supabase.from('site_settings').select('*');
@@ -866,6 +915,14 @@ export async function fetchSiteSettingsData(): Promise<Record<string, string>> {
 }
 
 export async function updateSiteSettingsData(newSettings: Record<string, string>): Promise<void> {
+  try {
+    await fetch('/api/site-settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newSettings)
+    });
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       const rows = Object.entries(newSettings).map(([key, value]) => ({ key, value }));
@@ -1463,6 +1520,17 @@ export async function deleteTerm(id: string): Promise<void> {
 // CLASSES CRUD
 // ==========================================
 export async function fetchClasses(): Promise<SchoolClass[]> {
+  try {
+    const res = await fetch('/api/classes');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setLocal('ga_classes', data);
+        return data;
+      }
+    }
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       const { data, error } = await supabase.from('classes').select('*').order('name', { ascending: true });
@@ -1473,11 +1541,24 @@ export async function fetchClasses(): Promise<SchoolClass[]> {
 }
 
 export async function createClass(cls: Omit<SchoolClass, 'id' | 'created_at'>): Promise<SchoolClass> {
-  const newClass: SchoolClass = { ...cls, id: `class-${Date.now()}`, created_at: new Date().toISOString() };
+  let newClass: SchoolClass = { ...cls, id: `class-${Date.now()}`, created_at: new Date().toISOString() };
+
+  try {
+    const res = await fetch('/api/classes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newClass)
+    });
+    if (res.ok) {
+      const saved = await res.json();
+      if (saved && saved.id) newClass = saved;
+    }
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       const { data, error } = await supabase.from('classes').insert([newClass]).select().single();
-      if (!error && data) return data as SchoolClass;
+      if (!error && data) newClass = data as SchoolClass;
     } catch {}
   }
   const all = getLocal<SchoolClass[]>('ga_classes', initialClasses);
@@ -1487,6 +1568,14 @@ export async function createClass(cls: Omit<SchoolClass, 'id' | 'created_at'>): 
 }
 
 export async function updateClass(id: string, updates: Partial<SchoolClass>): Promise<void> {
+  try {
+    await fetch(`/api/classes/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
+    });
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       await supabase.from('classes').update(updates).eq('id', id);
@@ -1501,6 +1590,10 @@ export async function updateClass(id: string, updates: Partial<SchoolClass>): Pr
 }
 
 export async function deleteClass(id: string): Promise<void> {
+  try {
+    await fetch(`/api/classes/${id}`, { method: 'DELETE' });
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       await supabase.from('classes').delete().eq('id', id);
@@ -1514,6 +1607,17 @@ export async function deleteClass(id: string): Promise<void> {
 // SUBJECTS CRUD
 // ==========================================
 export async function fetchSubjects(courseId?: string): Promise<Subject[]> {
+  try {
+    const res = await fetch(`/api/subjects${courseId ? `?course_id=${courseId}` : ''}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setLocal('ga_subjects', data);
+        return data;
+      }
+    }
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       let q = supabase.from('subjects').select('*').order('name', { ascending: true });
@@ -1527,11 +1631,24 @@ export async function fetchSubjects(courseId?: string): Promise<Subject[]> {
 }
 
 export async function createSubject(subj: Omit<Subject, 'id' | 'created_at'>): Promise<Subject> {
-  const newSubj: Subject = { ...subj, id: `subj-${Date.now()}`, created_at: new Date().toISOString() };
+  let newSubj: Subject = { ...subj, id: `subj-${Date.now()}`, created_at: new Date().toISOString() };
+
+  try {
+    const res = await fetch('/api/subjects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newSubj)
+    });
+    if (res.ok) {
+      const saved = await res.json();
+      if (saved && saved.id) newSubj = saved;
+    }
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       const { data, error } = await supabase.from('subjects').insert([newSubj]).select().single();
-      if (!error && data) return data as Subject;
+      if (!error && data) newSubj = data as Subject;
     } catch {}
   }
   const all = getLocal<Subject[]>('ga_subjects', initialSubjects);
@@ -1541,6 +1658,14 @@ export async function createSubject(subj: Omit<Subject, 'id' | 'created_at'>): P
 }
 
 export async function updateSubject(id: string, updates: Partial<Subject>): Promise<void> {
+  try {
+    await fetch(`/api/subjects/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
+    });
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       await supabase.from('subjects').update(updates).eq('id', id);
@@ -1555,6 +1680,10 @@ export async function updateSubject(id: string, updates: Partial<Subject>): Prom
 }
 
 export async function deleteSubject(id: string): Promise<void> {
+  try {
+    await fetch(`/api/subjects/${id}`, { method: 'DELETE' });
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       await supabase.from('subjects').delete().eq('id', id);
@@ -1672,6 +1801,17 @@ export async function deleteFeeStructure(id: string): Promise<void> {
 // TESTIMONIALS CRUD
 // ==========================================
 export async function fetchTestimonials(): Promise<Testimonial[]> {
+  try {
+    const res = await fetch('/api/testimonials');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setLocal('ga_testimonials', data);
+        return data;
+      }
+    }
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       const { data, error } = await supabase.from('testimonials').select('*');
@@ -1682,20 +1822,44 @@ export async function fetchTestimonials(): Promise<Testimonial[]> {
 }
 
 export async function createTestimonial(testimonial: Omit<Testimonial, 'id'>): Promise<Testimonial> {
-  const newT: Testimonial = { ...testimonial, id: `t-${Date.now()}` };
+  let newT: Testimonial = { ...testimonial, id: `t-${Date.now()}` };
+
+  try {
+    const res = await fetch('/api/testimonials', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newT)
+    });
+    if (res.ok) {
+      const saved = await res.json();
+      if (saved && saved.id) newT = saved;
+    }
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       const { data, error } = await supabase.from('testimonials').insert([newT]).select().single();
-      if (!error && data) return data as Testimonial;
+      if (!error && data) newT = data as Testimonial;
     } catch {}
   }
   const all = getLocal<Testimonial[]>('ga_testimonials', defaultTestimonials);
   all.unshift(newT);
   setLocal('ga_testimonials', all);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('ga_testimonials_updated'));
+  }
   return newT;
 }
 
 export async function updateTestimonial(id: string, updates: Partial<Testimonial>): Promise<void> {
+  try {
+    await fetch(`/api/testimonials/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
+    });
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       await supabase.from('testimonials').update(updates).eq('id', id);
@@ -1706,10 +1870,17 @@ export async function updateTestimonial(id: string, updates: Partial<Testimonial
   if (idx !== -1) {
     all[idx] = { ...all[idx], ...updates };
     setLocal('ga_testimonials', all);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('ga_testimonials_updated'));
+    }
   }
 }
 
 export async function deleteTestimonial(id: string): Promise<void> {
+  try {
+    await fetch(`/api/testimonials/${id}`, { method: 'DELETE' });
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       await supabase.from('testimonials').delete().eq('id', id);
@@ -1717,6 +1888,9 @@ export async function deleteTestimonial(id: string): Promise<void> {
   }
   const all = getLocal<Testimonial[]>('ga_testimonials', defaultTestimonials);
   setLocal('ga_testimonials', all.filter(t => t.id !== id));
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('ga_testimonials_updated'));
+  }
 }
 
 // ==========================================
@@ -2612,6 +2786,17 @@ export const defaultPosters: Poster[] = [
 ];
 
 export async function fetchPosters(onlyActive = false): Promise<Poster[]> {
+  try {
+    const res = await fetch(`/api/posters${onlyActive ? '?activeOnly=true' : ''}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setLocal('ga_admin_posters', data);
+        return onlyActive ? data.filter(p => p.is_active) : data;
+      }
+    }
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       let query = supabase.from('posters').select('*').order('display_order', { ascending: true });
@@ -2625,17 +2810,30 @@ export async function fetchPosters(onlyActive = false): Promise<Poster[]> {
 }
 
 export async function createPoster(poster: Omit<Poster, 'id'>): Promise<Poster> {
-  const newPoster: Poster = {
+  let newPoster: Poster = {
     ...poster,
     id: `poster-${Date.now()}`,
     is_active: poster.is_active !== undefined ? poster.is_active : true,
     display_order: poster.display_order ?? 1,
     created_at: new Date().toISOString()
   };
+
+  try {
+    const res = await fetch('/api/posters', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newPoster)
+    });
+    if (res.ok) {
+      const saved = await res.json();
+      if (saved && saved.id) newPoster = saved;
+    }
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       const { data, error } = await supabase.from('posters').insert([newPoster]).select().single();
-      if (!error && data) return data as Poster;
+      if (!error && data) newPoster = data as Poster;
     } catch {}
   }
   const all = getLocal<Poster[]>('ga_admin_posters', defaultPosters);
@@ -2648,6 +2846,14 @@ export async function createPoster(poster: Omit<Poster, 'id'>): Promise<Poster> 
 }
 
 export async function updatePoster(id: string, updates: Partial<Poster>): Promise<void> {
+  try {
+    await fetch(`/api/posters/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
+    });
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       await supabase.from('posters').update(updates).eq('id', id);
@@ -2665,6 +2871,10 @@ export async function updatePoster(id: string, updates: Partial<Poster>): Promis
 }
 
 export async function deletePoster(id: string): Promise<void> {
+  try {
+    await fetch(`/api/posters/${id}`, { method: 'DELETE' });
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       await supabase.from('posters').delete().eq('id', id);

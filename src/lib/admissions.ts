@@ -224,6 +224,23 @@ export async function submitAdmissionApplication(application: Omit<Admission, 'i
     updated_at: new Date().toISOString(),
   };
 
+  // 1. Post to Server API for cross-device shared storage
+  try {
+    const res = await fetch('/api/admissions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newAdmission)
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.id) {
+        newAdmission.id = data.id;
+      }
+    }
+  } catch (err) {
+    console.warn('Server API admission post fallback:', err);
+  }
+
   if (isSupabaseConfigured) {
     try {
       const { data, error } = await supabase
@@ -252,13 +269,6 @@ export async function submitAdmissionApplication(application: Omit<Admission, 'i
     } catch (e) {
       console.warn('Supabase insert note:', e);
     }
-
-    // Trigger Edge Function to notify admin
-    try {
-      await supabase.functions.invoke('notify-admin-new-application', {
-        body: newAdmission
-      });
-    } catch {}
   }
 
   // Also update local storage for immediate synchronization
@@ -277,6 +287,24 @@ export async function fetchAllAdmissions(options?: {
   search?: string;
 }): Promise<Admission[]> {
   let records: Admission[] = [];
+
+  // 1. Fetch from server API
+  try {
+    const params = new URLSearchParams();
+    if (options?.status && options.status !== 'all') params.append('status', options.status);
+    if (options?.search) params.append('search', options.search);
+    const res = await fetch(`/api/admissions?${params.toString()}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        records = data;
+        saveStoredAdmissions(data);
+        return records;
+      }
+    }
+  } catch (e) {
+    console.warn('Server admissions fetch fallback:', e);
+  }
 
   if (isSupabaseConfigured) {
     try {
@@ -341,6 +369,17 @@ export async function updateAdmissionStatus(
     };
     saveStoredAdmissions(list);
     updatedRecord = list[targetIndex];
+  }
+
+  // 1.5 Update on server API
+  try {
+    await fetch(`/api/admissions/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus, admin_notes: adminNotes, updated_by: updatedBy })
+    });
+  } catch (err) {
+    console.warn('Server patch admission fallback:', err);
   }
 
   // 2. Update in Supabase
@@ -424,6 +463,12 @@ export async function checkAdmissionStatusByEmail(email: string): Promise<Admiss
  * Delete admission application
  */
 export async function deleteAdmission(id: string): Promise<void> {
+  try {
+    await fetch(`/api/admissions/${id}`, { method: 'DELETE' });
+  } catch (err) {
+    console.warn('Server delete admission fallback:', err);
+  }
+
   if (isSupabaseConfigured) {
     try {
       await supabase.from('admissions').delete().eq('id', id);
@@ -509,6 +554,20 @@ export async function createAdmission(admissionData: Partial<Admission>): Promis
     created_at: now,
     updated_at: now
   };
+
+  try {
+    const res = await fetch('/api/admissions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newAdmission)
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.id) newAdmission.id = data.id;
+    }
+  } catch (err) {
+    console.warn('Server create admission fallback:', err);
+  }
 
   if (isSupabaseConfigured) {
     try {
