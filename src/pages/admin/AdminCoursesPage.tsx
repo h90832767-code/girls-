@@ -105,7 +105,7 @@ export const AdminCoursesPage: React.FC = () => {
         });
         setToastMessage(`Course "${title}" updated successfully.`);
       } else {
-        await createCourse({
+        const created = await createCourse({
           title,
           category,
           level,
@@ -117,14 +117,16 @@ export const AdminCoursesPage: React.FC = () => {
           thumbnail_url: thumbnailUrl,
           is_active: true
         });
+        setCourses(prev => [created, ...prev.filter(x => x.id !== created.id)]);
+        setCategoryFilter('all');
+        setSearchQuery('');
         setToastMessage(`Course "${title}" added to academic curriculum catalog.`);
       }
 
       setShowModal(false);
-      await loadCourses();
       setTimeout(() => setToastMessage(null), 4000);
     } catch (err: any) {
-      setToastMessage('Error saving course: ' + (err.message || 'Unknown error'));
+      setToastMessage('Error saving course: ' + (err?.message || 'Failed'));
       setTimeout(() => setToastMessage(null), 4000);
     } finally {
       setIsSubmitting(false);
@@ -132,10 +134,14 @@ export const AdminCoursesPage: React.FC = () => {
   };
 
   const handleDelete = async (c: Course) => {
-    await deleteCourse(c.id);
-    setToastMessage(`Course "${c.title}" removed.`);
-    await loadCourses();
-    setTimeout(() => setToastMessage(null), 3000);
+    try {
+      await deleteCourse(c.id);
+      setCourses(prev => prev.filter(x => x.id !== c.id));
+      setToastMessage(`Course "${c.title}" removed.`);
+      setTimeout(() => setToastMessage(null), 3000);
+    } catch {
+      setToastMessage('Failed to delete course');
+    }
   };
 
   const handleToggleActive = async (c: Course) => {

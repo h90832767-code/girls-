@@ -198,6 +198,12 @@ const initialTestimonials = [
   }
 ];
 
+const initialTerms = [
+  { id: 'term-1', name: 'Term 1 (First Term): April – June', academic_year: '2026-2027', start_date: '2026-04-01', end_date: '2026-06-30', is_active: true },
+  { id: 'term-2', name: 'Mid-Year Exams: October', academic_year: '2026-2027', start_date: '2026-10-01', end_date: '2026-10-25', is_active: false },
+  { id: 'term-3', name: 'Term 2 (Second Term / Annual): February – March', academic_year: '2026-2027', start_date: '2027-02-01', end_date: '2027-03-31', is_active: false },
+];
+
 const initialClasses = [
   { id: 'class-1', name: 'Class 9 (Science)', course_id: 'c-3', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
   { id: 'class-2', name: 'Class 10 (Science)', course_id: 'c-3', term_id: 'term-1', created_at: '2026-01-01T00:00:00Z' },
@@ -418,6 +424,7 @@ interface AppStore {
   admissions: any[];
   testimonials: any[];
   classes: any[];
+  terms?: any[];
   courses: any[];
   subjects: any[];
   site_settings: Record<string, string>;
@@ -441,6 +448,7 @@ function loadStore(): AppStore {
         admissions: Array.isArray(parsed.admissions) ? parsed.admissions : initialAdmissions,
         testimonials: Array.isArray(parsed.testimonials) && parsed.testimonials.length > 0 ? parsed.testimonials : initialTestimonials,
         classes: Array.isArray(parsed.classes) && parsed.classes.length > 0 ? parsed.classes : initialClasses,
+        terms: Array.isArray(parsed.terms) && parsed.terms.length > 0 ? parsed.terms : initialTerms,
         courses: Array.isArray(parsed.courses) && parsed.courses.length > 0 ? parsed.courses : initialCourses,
         subjects: Array.isArray(parsed.subjects) && parsed.subjects.length > 0 ? parsed.subjects : initialSubjects,
         site_settings: parsed.site_settings && typeof parsed.site_settings === 'object' ? parsed.site_settings : initialSiteSettings,
@@ -465,6 +473,7 @@ function loadStore(): AppStore {
     admissions: initialAdmissions,
     testimonials: initialTestimonials,
     classes: initialClasses,
+    terms: initialTerms,
     courses: initialCourses,
     subjects: initialSubjects,
     site_settings: initialSiteSettings,
@@ -545,7 +554,11 @@ app.post('/api/upload', (req, res) => {
 // ============================================================================
 app.get('/api/posters', (req, res) => {
   const { activeOnly } = req.query;
-  let list = dbStore.posters;
+  let list = [...dbStore.posters].sort((a, b) => {
+    const tA = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const tB = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return tB - tA;
+  });
   if (activeOnly === 'true') {
     list = list.filter(p => p.is_active);
   }
@@ -560,10 +573,10 @@ app.post('/api/posters', (req, res) => {
       id: posterData.id || `poster-${Date.now()}`,
       created_at: posterData.created_at || new Date().toISOString(),
       is_active: posterData.is_active !== undefined ? posterData.is_active : true,
-      display_order: posterData.display_order || (dbStore.posters.length + 1)
+      display_order: posterData.display_order || 1
     };
 
-    dbStore.posters.unshift(newPoster);
+    dbStore.posters = [newPoster, ...dbStore.posters.filter(p => p.id !== newPoster.id)];
     saveStore(dbStore);
     res.status(201).json(newPoster);
   } catch (err: any) {
@@ -595,7 +608,11 @@ app.delete('/api/posters/:id', (req, res) => {
 // ============================================================================
 app.get('/api/testimonials', (req, res) => {
   const { approvedOnly } = req.query;
-  let list = dbStore.testimonials;
+  let list = [...dbStore.testimonials].sort((a, b) => {
+    const tA = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const tB = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return tB - tA;
+  });
   if (approvedOnly === 'true') {
     list = list.filter(t => t.is_approved !== false && t.is_active !== false);
   }
@@ -652,7 +669,13 @@ app.delete('/api/testimonials/:id', (req, res) => {
 // CLASSES API
 // ============================================================================
 app.get('/api/classes', (_req, res) => {
-  res.json(dbStore.classes);
+  // Always return newest/recently created classes first
+  const sorted = [...dbStore.classes].sort((a, b) => {
+    const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return timeB - timeA;
+  });
+  res.json(sorted);
 });
 
 app.post('/api/classes', (req, res) => {
@@ -663,7 +686,7 @@ app.post('/api/classes', (req, res) => {
       id: data.id || `class-${Date.now()}`,
       created_at: data.created_at || new Date().toISOString(),
     };
-    dbStore.classes.push(newClass);
+    dbStore.classes = [newClass, ...dbStore.classes.filter(c => c.id !== newClass.id)];
     saveStore(dbStore);
     res.status(201).json(newClass);
   } catch (err: any) {
@@ -691,11 +714,57 @@ app.delete('/api/classes/:id', (req, res) => {
 });
 
 // ============================================================================
+// TERMS API
+// ============================================================================
+app.get('/api/terms', (_req, res) => {
+  res.json(Array.isArray(dbStore.terms) && dbStore.terms.length > 0 ? dbStore.terms : initialTerms);
+});
+
+app.post('/api/terms', (req, res) => {
+  try {
+    const data = req.body;
+    const newTerm = {
+      ...data,
+      id: data.id || `term-${Date.now()}`,
+    };
+    if (!Array.isArray(dbStore.terms)) dbStore.terms = [...initialTerms];
+    dbStore.terms = [newTerm, ...dbStore.terms.filter(t => t.id !== newTerm.id)];
+    saveStore(dbStore);
+    res.status(201).json(newTerm);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/terms/:id', (req, res) => {
+  const { id } = req.params;
+  const updates = req.body;
+  if (!Array.isArray(dbStore.terms)) dbStore.terms = [...initialTerms];
+  const idx = dbStore.terms.findIndex(t => t.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Term not found' });
+  dbStore.terms[idx] = { ...dbStore.terms[idx], ...updates };
+  saveStore(dbStore);
+  res.json(dbStore.terms[idx]);
+});
+
+app.delete('/api/terms/:id', (req, res) => {
+  const { id } = req.params;
+  if (!Array.isArray(dbStore.terms)) dbStore.terms = [...initialTerms];
+  dbStore.terms = dbStore.terms.filter(t => t.id !== id);
+  saveStore(dbStore);
+  res.json({ success: true });
+});
+
+// ============================================================================
 // COURSES API
 // ============================================================================
 app.get('/api/courses', (req, res) => {
   const { activeOnly } = req.query;
-  let list = dbStore.courses;
+  let list = [...dbStore.courses].sort((a, b) => {
+    const tA = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const tB = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return tB - tA;
+  });
   if (activeOnly === 'true') {
     list = list.filter(c => c.is_active);
   }
@@ -709,9 +778,9 @@ app.post('/api/courses', (req, res) => {
       ...data,
       id: data.id || `course-${Date.now()}`,
       is_active: data.is_active !== undefined ? data.is_active : true,
-      created_at: new Date().toISOString(),
+      created_at: data.created_at || new Date().toISOString(),
     };
-    dbStore.courses.push(newCourse);
+    dbStore.courses = [newCourse, ...dbStore.courses.filter(c => c.id !== newCourse.id)];
     saveStore(dbStore);
     res.status(201).json(newCourse);
   } catch (err: any) {
@@ -758,7 +827,7 @@ app.post('/api/subjects', (req, res) => {
       id: data.id || `subj-${Date.now()}`,
       created_at: new Date().toISOString(),
     };
-    dbStore.subjects.push(newSubj);
+    dbStore.subjects = [newSubj, ...dbStore.subjects.filter(s => s.id !== newSubj.id)];
     saveStore(dbStore);
     res.status(201).json(newSubj);
   } catch (err: any) {
@@ -788,7 +857,11 @@ app.delete('/api/subjects/:id', (req, res) => {
 // ============================================================================
 app.get('/api/admissions', (req, res) => {
   const { status, search } = req.query;
-  let records = [...dbStore.admissions];
+  let records = [...dbStore.admissions].sort((a, b) => {
+    const tA = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const tB = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return tB - tA;
+  });
 
   if (status && status !== 'all') {
     records = records.filter(r => (r.status || '').toLowerCase() === String(status).toLowerCase());
@@ -818,7 +891,7 @@ app.post('/api/admissions', (req, res) => {
       updated_at: new Date().toISOString(),
     };
 
-    dbStore.admissions.unshift(newAdmission);
+    dbStore.admissions = [newAdmission, ...dbStore.admissions.filter(a => a.id !== newAdmission.id)];
     saveStore(dbStore);
     res.status(201).json(newAdmission);
   } catch (err: any) {

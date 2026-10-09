@@ -90,14 +90,17 @@ export const AdminSubjectsPage: React.FC = () => {
         });
         toast.success(`Subject "${subjectName}" updated successfully!`);
       } else {
-        await createSubject({
+        const created = await createSubject({
           name: subjectName.trim(),
           course_id: courseId
         });
+        setSubjects(prev => [created, ...prev.filter(s => s.id !== created.id)]);
+        setSearchTerm('');
+        setSelectedCourseFilter('all');
         toast.success(`Subject "${subjectName}" created successfully!`);
       }
       setIsModalOpen(false);
-      loadData();
+      setSubjectName('');
     } catch {
       toast.error('Failed to save subject');
     } finally {
@@ -234,7 +237,7 @@ export const AdminSubjectsPage: React.FC = () => {
         <Table
           data={filteredSubjects}
           columns={columns}
-          pageSize={10}
+          pageSize={50}
           isLoading={isLoading}
           emptyMessage="No academic subjects match your filter."
         />

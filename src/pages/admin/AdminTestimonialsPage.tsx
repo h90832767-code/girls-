@@ -91,16 +91,18 @@ export const AdminTestimonialsPage: React.FC = () => {
         });
         toast.success('Testimonial updated successfully!');
       } else {
-        await createTestimonial({
+        const created = await createTestimonial({
           student_name: studentName.trim(),
           student_class: studentClass.trim(),
           quote: quote.trim(),
           avatar_url: avatarUrl
         });
-        toast.success('Testimonial published!');
+        setTestimonials(prev => [created, ...prev.filter(t => t.id !== created.id)]);
+        toast.success('Testimonial published and live across all portals!');
       }
       setIsModalOpen(false);
-      loadData();
+      setStudentName('');
+      setQuote('');
     } catch {
       toast.error('Failed to save testimonial');
     } finally {
@@ -207,7 +209,7 @@ export const AdminTestimonialsPage: React.FC = () => {
         <Table
           data={testimonials}
           columns={columns}
-          pageSize={10}
+          pageSize={50}
           isLoading={isLoading}
           emptyMessage="No testimonials available."
         />

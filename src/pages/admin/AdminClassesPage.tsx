@@ -29,7 +29,14 @@ export const AdminClassesPage: React.FC = () => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
   const toast = useToast();
+
+  // Quick Add State
+  const [quickClassName, setQuickClassName] = useState('');
+  const [quickCourseId, setQuickCourseId] = useState('');
+  const [quickTermId, setQuickTermId] = useState('');
+  const [isQuickSaving, setIsQuickSaving] = useState(false);
 
   // Add/Edit Class Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -73,52 +80,106 @@ export const AdminClassesPage: React.FC = () => {
 
   useEffect(() => {
     loadData();
+    const handleSync = () => loadData();
+    window.addEventListener('ga_classes_updated', handleSync);
+    window.addEventListener('storage', handleSync);
+    return () => {
+      window.removeEventListener('ga_classes_updated', handleSync);
+      window.removeEventListener('storage', handleSync);
+    };
   }, []);
 
   const openAddModal = () => {
     setEditingClass(null);
     setClassName('');
-    setSelectedCourseId(courses[0]?.id || '');
-    setSelectedTermId(terms[0]?.id || '');
+    setSelectedCourseId(courses[0]?.id || 'c-3');
+    setSelectedTermId(terms[0]?.id || 'term-1');
     setIsModalOpen(true);
   };
 
   const openEditModal = (c: SchoolClass) => {
     setEditingClass(c);
     setClassName(c.name);
-    setSelectedCourseId(c.course_id || courses[0]?.id || '');
-    setSelectedTermId(c.term_id || terms[0]?.id || '');
+    setSelectedCourseId(c.course_id || courses[0]?.id || 'c-3');
+    setSelectedTermId(c.term_id || terms[0]?.id || 'term-1');
     setIsModalOpen(true);
+  };
+
+  const handleQuickAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanName = quickClassName.trim();
+    if (!cleanName) {
+      toast.warning('Please enter a class / section name');
+      return;
+    }
+
+    setIsQuickSaving(true);
+    try {
+      const finalCourseId = quickCourseId || courses[0]?.id || 'c-3';
+      const finalTermId = quickTermId || terms[0]?.id || 'term-1';
+
+      const created = await createClass({
+        name: cleanName,
+        course_id: finalCourseId,
+        term_id: finalTermId
+      });
+
+      // Place newly added class strictly at index 0
+      setClasses(prev => [created, ...prev.filter(c => c.id !== created.id)]);
+      setNewlyAddedId(created.id);
+      setQuickClassName('');
+      setSearchTerm('');
+      toast.success(`Class "${cleanName}" created and added to the top of the roster!`);
+      setTimeout(() => setNewlyAddedId(null), 12000);
+    } catch (err: any) {
+      toast.error('Failed to create class: ' + (err?.message || 'Please try again'));
+    } finally {
+      setIsQuickSaving(false);
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!className.trim()) {
+    const cleanName = className.trim();
+    if (!cleanName) {
       toast.warning('Please enter a class / section name');
       return;
     }
 
     setIsSaving(true);
     try {
+      const finalCourseId = selectedCourseId || courses[0]?.id || 'c-3';
+      const finalTermId = selectedTermId || terms[0]?.id || 'term-1';
+
       if (editingClass) {
         await updateClass(editingClass.id, {
-          name: className.trim(),
-          course_id: selectedCourseId,
-          term_id: selectedTermId
+          name: cleanName,
+          course_id: finalCourseId,
+          term_id: finalTermId
         });
-        toast.success(`Class "${className}" updated successfully!`);
+        setClasses(prev => prev.map(c => c.id === editingClass.id ? { 
+          ...c, 
+          name: cleanName, 
+          course_id: finalCourseId, 
+          term_id: finalTermId 
+        } : c));
+        toast.success(`Class "${cleanName}" updated successfully!`);
       } else {
-        await createClass({
-          name: className.trim(),
-          course_id: selectedCourseId,
-          term_id: selectedTermId
+        const created = await createClass({
+          name: cleanName,
+          course_id: finalCourseId,
+          term_id: finalTermId
         });
-        toast.success(`Class "${className}" created successfully!`);
+        setClasses(prev => [created, ...prev.filter(c => c.id !== created.id)]);
+        setNewlyAddedId(created.id);
+        setSearchTerm('');
+        toast.success(`Class "${cleanName}" created and added to the top of the list!`);
+        setTimeout(() => setNewlyAddedId(null), 12000);
       }
       setIsModalOpen(false);
-      loadData();
-    } catch {
-      toast.error('Failed to save class');
+      setClassName('');
+    } catch (err: any) {
+      toast.error('Failed to save class: ' + (err?.message || ''));
     } finally {
       setIsSaving(false);
     }
@@ -173,11 +234,18 @@ export const AdminClassesPage: React.FC = () => {
       sortable: true,
       render: (c) => (
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-pink-500/15 border border-pink-500/30 text-pink-400 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-pink-500/15 border border-pink-500/30 text-pink-400 flex items-center justify-center shrink-0">
             <Users className="w-4 h-4" />
           </div>
           <div>
-            <span className="font-semibold text-white block">{c.name}</span>
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-white block">{c.name}</span>
+              {c.id === newlyAddedId && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500 text-white animate-bounce">
+                  ✨ Just Added
+                </span>
+              )}
+            </div>
             <span className="text-[11px] text-slate-400">{getTermName(c.term_id)}</span>
           </div>
         </div>
@@ -251,6 +319,92 @@ export const AdminClassesPage: React.FC = () => {
       pageSubtitle="Organize academic sections, assign teachers and course subjects, and manage student enrollments"
     >
       <div className="space-y-5 max-w-6xl">
+        {/* Quick Add Bar */}
+        <div className="bg-[#17152b] border border-purple-500/30 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-purple-600 to-pink-600 text-white flex items-center justify-center shadow-md">
+                <Plus className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <span>Quick Add Class Section</span>
+                  <span className="text-xs text-pink-400 font-normal">/ فوری نئی کلاس یا سیکشن بنائیں</span>
+                </h3>
+                <p className="text-[11px] text-slate-400">Instantly creates a new section, adds it to the top of the roster, and syncs across all portals</p>
+              </div>
+            </div>
+            <Badge variant="purple" size="sm">
+              ⚡ Instant Sync Active
+            </Badge>
+          </div>
+
+          <form onSubmit={handleQuickAdd} className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+            <div className="sm:col-span-5">
+              <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                Class / Section Name * <span className="text-slate-500 font-normal">(نام لکھیں)</span>
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Class 9 (Computer Science - Section A)"
+                value={quickClassName}
+                onChange={(e) => setQuickClassName(e.target.value)}
+                className="w-full bg-[#111020] border border-[#2d2947] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all"
+              />
+            </div>
+
+            <div className="sm:col-span-3">
+              <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                Academic Program <span className="text-slate-500 font-normal">(پروگرام)</span>
+              </label>
+              <select
+                value={quickCourseId}
+                onChange={(e) => setQuickCourseId(e.target.value)}
+                className="w-full bg-[#111020] border border-[#2d2947] rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500 transition-all"
+              >
+                {courses.length > 0 ? (
+                  courses.map(c => <option key={c.id} value={c.id}>{c.title}</option>)
+                ) : (
+                  <>
+                    <option value="c-3">Matric Science (General Stream)</option>
+                    <option value="c-6">FSc Pre-Medical</option>
+                    <option value="c-9">ICS Computer Science</option>
+                  </>
+                )}
+              </select>
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                Academic Term <span className="text-slate-500 font-normal">(ٹرم)</span>
+              </label>
+              <select
+                value={quickTermId}
+                onChange={(e) => setQuickTermId(e.target.value)}
+                className="w-full bg-[#111020] border border-[#2d2947] rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500 transition-all"
+              >
+                {terms.length > 0 ? (
+                  terms.map(t => <option key={t.id} value={t.id}>{t.name}</option>)
+                ) : (
+                  <option value="term-1">Term 1 (2026-2027)</option>
+                )}
+              </select>
+            </div>
+
+            <div className="sm:col-span-2">
+              <Button
+                type="submit"
+                variant="primary"
+                isLoading={isQuickSaving}
+                className="w-full text-xs py-2.5 font-semibold"
+              >
+                + Add Class
+              </Button>
+            </div>
+          </form>
+        </div>
+
         {/* Controls Bar */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="relative w-full sm:w-72">
@@ -264,22 +418,27 @@ export const AdminClassesPage: React.FC = () => {
             />
           </div>
 
-          <Button
-            type="button"
-            variant="primary"
-            size="sm"
-            onClick={openAddModal}
-            leftIcon={<Plus className="w-4 h-4" />}
-          >
-            Add New Class Section
-          </Button>
+          <div className="flex items-center gap-3">
+            <Badge variant="purple" size="md">
+              Total: {classes.length} Sections
+            </Badge>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={openAddModal}
+              leftIcon={<Plus className="w-4 h-4" />}
+            >
+              Add with Full Details
+            </Button>
+          </div>
         </div>
 
         {/* Table */}
         <Table
           data={filteredClasses}
           columns={columns}
-          pageSize={10}
+          pageSize={50}
           isLoading={isLoading}
           emptyMessage="No classes found."
         />

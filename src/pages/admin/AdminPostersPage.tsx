@@ -126,7 +126,7 @@ export const AdminPostersPage: React.FC = () => {
         await updatePoster(editingPoster.id, formData);
         showToast('Campus poster updated successfully!', 'success');
       } else {
-        await createPoster({
+        const created = await createPoster({
           title: formData.title,
           category: formData.category || 'Admissions',
           image_url: formData.image_url,
@@ -136,10 +136,12 @@ export const AdminPostersPage: React.FC = () => {
           is_active: formData.is_active !== false,
           display_order: formData.display_order || 1
         });
-        showToast('New campus poster added successfully!', 'success');
+        setPosters(prev => [created, ...prev.filter(p => p.id !== created.id)]);
+        setSelectedCategory('all');
+        setSearchQuery('');
+        showToast('New campus poster added successfully and live on home page!', 'success');
       }
       setIsModalOpen(false);
-      loadPosters();
     } catch (err: any) {
       showToast(err.message || 'Failed to save poster', 'error');
     }

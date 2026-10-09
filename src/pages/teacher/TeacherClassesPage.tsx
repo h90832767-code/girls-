@@ -1,38 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PortalLayout } from '../../components/layout/PortalLayout';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Users, BookOpen, Clock, CalendarCheck, Award, FileSpreadsheet } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { fetchClasses } from '../../lib/dataService';
+import { SchoolClass } from '../../types';
 
 export const TeacherClassesPage: React.FC = () => {
-  const [selectedClass, setSelectedClass] = useState('cls-1');
+  const [classesList, setClassesList] = useState<SchoolClass[]>([]);
+  const [selectedClass, setSelectedClass] = useState<string>('');
 
-  const classes = [
-    { id: 'cls-1', name: 'Class 10 (Matric Science - BISE)', code: 'MAT-301', students: 38, schedule: 'Mon-Sat, 08:30 AM' },
-    { id: 'cls-2', name: 'FSc Pre-Medical (1st Year)', code: 'HSC-401', students: 44, schedule: 'Mon-Sat, 09:30 AM' },
-    { id: 'cls-3', name: 'ICS Computer Science (2nd Year)', code: 'HSC-403', students: 39, schedule: 'Mon-Sat, 11:00 AM' },
-  ];
+  const loadClasses = async () => {
+    try {
+      const cls = await fetchClasses();
+      if (cls && cls.length > 0) {
+        setClassesList(cls);
+        if (!selectedClass || !cls.find(c => c.id === selectedClass)) {
+          setSelectedClass(cls[0].id);
+        }
+      }
+    } catch {}
+  };
+
+  useEffect(() => {
+    loadClasses();
+    const handleSync = () => loadClasses();
+    window.addEventListener('ga_classes_updated', handleSync);
+    window.addEventListener('storage', handleSync);
+    return () => {
+      window.removeEventListener('ga_classes_updated', handleSync);
+      window.removeEventListener('storage', handleSync);
+    };
+  }, []);
 
   const rosters: Record<string, { roll: string; name: string; email: string; attendance: string }[]> = {
-    'cls-1': [
+    default: [
       { roll: 'GA-10S-042', name: 'Fatima Bibi', email: 'student@girlsacademy.edu.pk', attendance: '96.8%' },
       { roll: 'GA-10S-043', name: 'Ayesha Siddiqui', email: 'ayesha.s@girlsacademy.edu.pk', attendance: '98.0%' },
       { roll: 'GA-10S-044', name: 'Zainab Khan', email: 'zainab.k@girlsacademy.edu.pk', attendance: '95.5%' },
       { roll: 'GA-10S-045', name: 'Maryam Nawaz', email: 'maryam.n@girlsacademy.edu.pk', attendance: '100%' },
     ],
-    'cls-2': [
-      { roll: 'GA-11M-011', name: 'Khadija Rehman', email: 'khadija.r@girlsacademy.edu.pk', attendance: '94.2%' },
-      { roll: 'GA-11M-012', name: 'Fatima Zahra', email: 'fatima.z@girlsacademy.edu.pk', attendance: '97.1%' },
-    ],
-    'cls-3': [
-      { roll: 'GA-12C-081', name: 'Hina Sheikh', email: 'hina.s@girlsacademy.edu.pk', attendance: '99.0%' },
-      { roll: 'GA-12C-082', name: 'Laiba Tariq', email: 'laiba.t@girlsacademy.edu.pk', attendance: '92.5%' },
-    ]
   };
 
-  const currentRoster = rosters[selectedClass] || rosters['cls-1'];
+  const currentRoster = rosters[selectedClass] || rosters['default'];
 
   return (
     <PortalLayout
@@ -43,7 +55,7 @@ export const TeacherClassesPage: React.FC = () => {
 
         {/* Classes Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {classes.map((c) => (
+          {classesList.map((c) => (
             <Card
               key={c.id}
               onClick={() => setSelectedClass(c.id)}
@@ -54,12 +66,12 @@ export const TeacherClassesPage: React.FC = () => {
               }`}
             >
               <div className="flex items-center justify-between mb-2">
-                <Badge variant="purple">{c.code}</Badge>
-                <span className="text-xs text-purple-300 font-medium">{c.students} Scholars</span>
+                <Badge variant="purple">SEC-{c.id.slice(-4).toUpperCase()}</Badge>
+                <span className="text-xs text-purple-300 font-medium">32 Scholars</span>
               </div>
               <h3 className="text-sm font-bold text-white mt-1">{c.name}</h3>
               <p className="text-xs text-slate-400 mt-2 flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-pink-400" /> {c.schedule}
+                <Clock className="w-3.5 h-3.5 text-pink-400" /> Mon-Sat, 08:30 AM
               </p>
             </Card>
           ))}

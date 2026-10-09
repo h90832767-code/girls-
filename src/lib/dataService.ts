@@ -733,9 +733,13 @@ export async function createCourse(course: Omit<Course, 'id'>): Promise<Course> 
       if (!error && data) newCourse = data as Course;
     } catch {}
   }
-  const all = getLocal('ga_admin_courses', defaultCourses);
-  all.unshift(newCourse);
-  setLocal('ga_admin_courses', all);
+  const all = getLocal<Course[]>('ga_admin_courses', defaultCourses);
+  const updated = [newCourse, ...all.filter(c => c.id !== newCourse.id)];
+  setLocal('ga_admin_courses', updated);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('ga_courses_updated', { detail: newCourse }));
+    window.dispatchEvent(new CustomEvent('ga_data_updated', { detail: { key: 'ga_admin_courses' } }));
+  }
   return newCourse;
 }
 
@@ -1469,6 +1473,17 @@ export async function deleteChatInquiry(id: string): Promise<void> {
 // TERMS CRUD
 // ==========================================
 export async function fetchTerms(): Promise<Term[]> {
+  try {
+    const res = await fetch('/api/terms');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setLocal('ga_terms', data);
+        return data;
+      }
+    }
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       const { data, error } = await supabase.from('terms').select('*').order('start_date', { ascending: true });
@@ -1479,20 +1494,40 @@ export async function fetchTerms(): Promise<Term[]> {
 }
 
 export async function createTerm(term: Omit<Term, 'id'>): Promise<Term> {
-  const newTerm: Term = { ...term, id: `term-${Date.now()}` };
+  let newTerm: Term = { ...term, id: `term-${Date.now()}` };
+  try {
+    const res = await fetch('/api/terms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newTerm)
+    });
+    if (res.ok) {
+      const saved = await res.json();
+      if (saved && saved.id) newTerm = saved;
+    }
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       const { data, error } = await supabase.from('terms').insert([newTerm]).select().single();
-      if (!error && data) return data as Term;
+      if (!error && data) newTerm = data as Term;
     } catch {}
   }
   const all = getLocal<Term[]>('ga_terms', initialTerms);
-  all.push(newTerm);
+  all.unshift(newTerm);
   setLocal('ga_terms', all);
   return newTerm;
 }
 
 export async function updateTerm(id: string, updates: Partial<Term>): Promise<void> {
+  try {
+    await fetch(`/api/terms/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
+    });
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       await supabase.from('terms').update(updates).eq('id', id);
@@ -1507,6 +1542,10 @@ export async function updateTerm(id: string, updates: Partial<Term>): Promise<vo
 }
 
 export async function deleteTerm(id: string): Promise<void> {
+  try {
+    await fetch(`/api/terms/${id}`, { method: 'DELETE' });
+  } catch {}
+
   if (isSupabaseConfigured) {
     try {
       await supabase.from('terms').delete().eq('id', id);
@@ -1520,29 +1559,52 @@ export async function deleteTerm(id: string): Promise<void> {
 // CLASSES CRUD
 // ==========================================
 export async function fetchClasses(): Promise<SchoolClass[]> {
+  let list: SchoolClass[] = [];
   try {
     const res = await fetch('/api/classes');
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
-        setLocal('ga_classes', data);
-        return data;
+        list = data;
       }
     }
   } catch {}
 
-  if (isSupabaseConfigured) {
+  if (list.length === 0 && isSupabaseConfigured) {
     try {
-      const { data, error } = await supabase.from('classes').select('*').order('name', { ascending: true });
-      if (!error && data && data.length > 0) return data as SchoolClass[];
+      const { data, error } = await supabase.from('classes').select('*').order('created_at', { ascending: false });
+      if (!error && data && data.length > 0) list = data as SchoolClass[];
     } catch {}
   }
-  return getLocal<SchoolClass[]>('ga_classes', initialClasses);
+
+  if (list.length === 0) {
+    list = getLocal<SchoolClass[]>('ga_classes', initialClasses);
+  }
+
+  // Always order newest classes at the top so any additions are immediately visible
+  const sorted = [...list].sort((a, b) => {
+    const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return timeB - timeA;
+  });
+
+  setLocal('ga_classes', sorted);
+  return sorted;
 }
 
 export async function createClass(cls: Omit<SchoolClass, 'id' | 'created_at'>): Promise<SchoolClass> {
-  let newClass: SchoolClass = { ...cls, id: `class-${Date.now()}`, created_at: new Date().toISOString() };
+  let newClass: SchoolClass = { 
+    ...cls, 
+    id: `class-${Date.now()}`, 
+    created_at: new Date().toISOString() 
+  };
 
+  // 1. Immediately place at the top of local storage
+  const current = getLocal<SchoolClass[]>('ga_classes', initialClasses);
+  const updated = [newClass, ...current.filter(c => c.id !== newClass.id)];
+  setLocal('ga_classes', updated);
+
+  // 2. Persist to server API
   try {
     const res = await fetch('/api/classes', {
       method: 'POST',
@@ -1551,19 +1613,32 @@ export async function createClass(cls: Omit<SchoolClass, 'id' | 'created_at'>): 
     });
     if (res.ok) {
       const saved = await res.json();
-      if (saved && saved.id) newClass = saved;
+      if (saved && saved.id) {
+        newClass = saved;
+        const fresh = getLocal<SchoolClass[]>('ga_classes', initialClasses);
+        const idx = fresh.findIndex(c => c.id === newClass.id);
+        if (idx !== -1) fresh[idx] = saved;
+        setLocal('ga_classes', fresh);
+      }
     }
-  } catch {}
+  } catch (err) {
+    console.warn('Server class save note:', err);
+  }
 
+  // 3. Persist to Supabase if configured
   if (isSupabaseConfigured) {
     try {
       const { data, error } = await supabase.from('classes').insert([newClass]).select().single();
       if (!error && data) newClass = data as SchoolClass;
-    } catch {}
+    } catch (err) {
+      console.warn('Supabase class save note:', err);
+    }
   }
-  const all = getLocal<SchoolClass[]>('ga_classes', initialClasses);
-  all.push(newClass);
-  setLocal('ga_classes', all);
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('ga_classes_updated', { detail: newClass }));
+    window.dispatchEvent(new CustomEvent('ga_data_updated', { detail: { key: 'ga_classes' } }));
+  }
   return newClass;
 }
 
@@ -1586,6 +1661,9 @@ export async function updateClass(id: string, updates: Partial<SchoolClass>): Pr
   if (idx !== -1) {
     all[idx] = { ...all[idx], ...updates };
     setLocal('ga_classes', all);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('ga_classes_updated'));
+    }
   }
 }
 
@@ -1601,6 +1679,9 @@ export async function deleteClass(id: string): Promise<void> {
   }
   const all = getLocal<SchoolClass[]>('ga_classes', initialClasses);
   setLocal('ga_classes', all.filter(c => c.id !== id));
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('ga_classes_updated'));
+  }
 }
 
 // ==========================================
